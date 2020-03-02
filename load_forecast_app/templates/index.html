@@ -64,67 +64,15 @@
 		
 		<hr>
 
-		<!-- dropdown menu for filter -->
-		<div class="dropdown">
-		  		
-	  		<button class="btn btn-danger btn-lg dropdown-toggle" type="button" 
-	  		id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" 
-	  		aria-expanded="false">Filter by country</button>
-	  		
-	  		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="check-boxes">
-				<div class="form-check ml-3">
-					<!-- Check the select-all box if all countries were submitted from the form -->
-					{% if countries_selected|length == 10 %}
-						<input class="form-check-input" type="checkbox" name="Select All" value="selectall" id="select-all-check" checked>
-					{% else %}
-						<input class="form-check-input" type="checkbox" name="Select All" value="selectall" id="select-all-check">
-					{% endif %}
-				  	<label class="form-check-label" for="select-all-check">Select All</label>
-				</div>
-				<form class="px-4 py-3" role="form" method="post" action="/" id="form-filter">
-					{% for country in all_countries %}
-						<div class="form-check">
-							<!-- Check the country filter boxes for all countries submitted from the form -->
-							{% if country[1] in countries_selected %}
-						  		<input class="form-check-input country-check" type="checkbox" name="{{ country[0] }}" value="{{ country[1] }}" id="defaultCheck1-{{country[1]}}" checked>
-							{% else %}
-						  		<input class="form-check-input country-check" type="checkbox" name="{{ country[0] }}" value="{{ country[1] }}" id="defaultCheck1-{{country[1]}}">							
-							{% endif %}
-					  		<label class="form-check-label" for="defaultCheck1-{{country[1]}}">{{country[0]}}</label>
-						</div>
-					{% endfor %}
-		  			<button id="country_selector" type="submit" class="btn btn-primary my-1">Submit</button>
-				</form>
-			</div>
-		</div>
-
 		<!--charts-->		
 		<div id="charts" class="container mt-3 text-center">
 					
 			<!--top two charts-->		
 			<div class="row">
-				<div class="col-6">
+				<div class="col-12">
 					<div id="{{ids[0]}}"></div>
 				</div>
-				<div class="col-6">
-					<div id="{{ids[1]}}"></div>
-				</div>
 			</div>
-
-			<!--bottom two charts-->		
-			<div class="row mb-6">
-				<div class="col-6">	
-					<div id="chart3">
-						<div id="{{ids[2]}}"></div>
-					</div>
-				</div>
-				<div class="col-6">
-					<div id="chart4">
-						<div id="{{ids[3]}}"></div>
-					</div>
-				<div>
-			</div>
-		
 		</div>
 	<div>
 </div>
@@ -146,25 +94,6 @@
 				figures[i].data,
 				figures[i].layout || {});
 		};
-
-		// checks or unchecks the filter boxes based on the select all box
-        $("#select-all-check").change(function () {
-        	$("#check-boxes input:checkbox").prop('checked', $(this).prop('checked'));
-        });
-
-		// uncheck select-all box when unchecking another box
-		$("#form-filter").change(function () {
-			if (!$(this).prop('checked')) {
-				$("#select-all-check").prop('checked', false);
-			}
-		});
-
-		// check select-all box when re-checking all of the other boxes
-		$("#form-filter").change(function () {
-			if ($(".country-check:checked").length == $('.form-check').length - 1) {
-				$("#select-all-check").prop('checked', true);
-			}
-		});
 
     </script>
 
