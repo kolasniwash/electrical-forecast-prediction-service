@@ -60,8 +60,6 @@ def make_predictions(df, date=None, period=None):
     return df
 
 
-
-
 def return_figures():
     """Creates four plotly visualizations using the World Bank API
 
