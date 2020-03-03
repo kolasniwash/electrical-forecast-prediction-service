@@ -16,7 +16,7 @@ def get_access_token():
     return os.environ.get('ENTSOE_TOKEN')
 
 
-def load_data(country='ES', date=None, period=None):
+def get_date_range(date=None, period=None):
 
     if date == None:
         date = datetime.today()+timedelta(1)
@@ -26,9 +26,16 @@ def load_data(country='ES', date=None, period=None):
     else:
         delta = timedelta(period)
 
-
     end = pd.Timestamp(date.strftime('%Y%m%d'), tz='UTC')
     start = pd.Timestamp((date - delta).strftime('%Y%m%d'), tz='UTC')
+
+    return start, end
+
+
+def get_entsoe_data(country='ES', date=None, period=None):
+
+
+    start, end = get_date_range()
 
     client = EntsoePandasClient(api_key=get_access_token())
 
@@ -37,6 +44,20 @@ def load_data(country='ES', date=None, period=None):
     return data
 
 
+def load_data():
+
+    df_load = get_entsoe_data()
+
+    df_preds = make_predictions(df_load)
+
+    return df_load, df_preds
+
+def make_predictions(df, date=None, period=None):
+
+    #move forward 24 hours. persistance model.
+    df = df.shift(24)
+
+    return df
 
 
 
@@ -58,9 +79,10 @@ def return_figures():
 
     # first chart plots arable land from 1990 to 2015 in top 10 economies 
     # as a line chart
-    graph_one = []
+    graph_one = list()
+    graph_two = list()
 
-    df_one = load_data()
+    df_one, df_two = load_data()
 
     # filter and sort values for the visualization
     # filtering plots the countries in decreasing order by their values
@@ -70,21 +92,29 @@ def return_figures():
     # this  country list is re-used by all the charts to ensure legends have the same
     # order and color
 
-    x_val = df_one.index.tolist()
-    y_val =  df_one.values.tolist()
+ 
     graph_one.append( 
     go.Scatter(
-      x = x_val,
-      y = y_val,
-      mode = 'lines'
+      x = df_one.index,
+      y = df_one.values,
+      mode = 'lines',
+      name = 'Actual Load'
       )
     )
 
-    layout_one = dict(title = 'ES Energy Demand',
-                xaxis = dict(title = 'Time',
-                  autotick=True),
-                yaxis = dict(title = 'Load MWh'),
-                )
+    layout_one = dict(title = 'ES Energy Demand', 
+        xaxis = dict(title = 'Time', autotick=True), 
+        yaxis = dict(title = 'Load MWh', autotick=True))
+
+    graph_one.append( 
+    go.Scatter(
+      x = df_two.index,
+      y = df_two.values,
+      mode = 'lines',
+      name='Persistance: Forecast'
+      )
+    )
+
 
     # append all charts
     figures = []
