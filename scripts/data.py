@@ -16,49 +16,59 @@ def get_access_token():
     return os.environ.get('ENTSOE_TOKEN')
 
 
-def get_date_range(date=None, period=None):
+# def get_date_range(date=None, period=None):
 
-    if date == None:
-        date = datetime.today()+timedelta(1)
+#     if date == None:
+#         date = datetime.today()+timedelta(1)
 
-    if period==None:
-        delta = timedelta(14)
-    else:
-        delta = timedelta(period)
+#     if period==None:
+#         delta = timedelta(14)
+#     else:
+#         delta = timedelta(period)
 
-    end = pd.Timestamp(date.strftime('%Y%m%d'), tz='UTC')
-    start = pd.Timestamp((date - delta).strftime('%Y%m%d'), tz='UTC')
+#     end = pd.Timestamp(date.strftime('%Y%m%d'), tz='UTC')
+#     start = pd.Timestamp((date - delta).strftime('%Y%m%d'), tz='UTC')
 
-    return start, end
-
-
-def get_entsoe_data(country='ES', date=None, period=None):
+#     return start, end
 
 
-    start, end = get_date_range()
-
-    client = EntsoePandasClient(api_key=get_access_token())
-
-    data = client.query_load(country, start=start, end=end)
-
-    return data
+# def get_entsoe_data(country='ES', date=None, period=None):
 
 
-def load_data():
+#     start, end = get_date_range()
 
-    df_load = get_entsoe_data()
+#     client = EntsoePandasClient(api_key=get_access_token())
 
-    df_preds = make_predictions(df_load)
+#     data = client.query_load(country, start=start, end=end)
+
+#     return data
+
+
+# def load_data():
+
+#     df_load = get_entsoe_data()
+
+#     df_preds = make_predictions(df_load)
+
+#     return df_load, df_preds
+
+# def make_predictions(df, date=None, period=None):
+
+#     #move forward 24 hours. persistance model.
+#     df = df.shift(24)
+
+#     return df
+
+
+def request_graph_data():
+    
+    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/return-load"
+    result = requests.post(url, json={"key": str(get_access_token())})
+
+    df_load = pd.read_json(result.json()['df_load'], typ='series', orient='index')
+    df_preds = pd.read_json(result.json()['df_preds'], typ='series', orient='index')
 
     return df_load, df_preds
-
-def make_predictions(df, date=None, period=None):
-
-    #move forward 24 hours. persistance model.
-    df = df.shift(24)
-
-    return df
-
 
 def return_figures():
     """Creates four plotly visualizations using the World Bank API
@@ -80,7 +90,7 @@ def return_figures():
     graph_one = list()
     graph_two = list()
 
-    df_one, df_two = load_data()
+    df_one, df_two = request_graph_data()
 
     # filter and sort values for the visualization
     # filtering plots the countries in decreasing order by their values
