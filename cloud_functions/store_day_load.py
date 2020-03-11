@@ -11,7 +11,7 @@ def store_day_load(request):
     
     def generate_dates(date=None):
 
-        if date=None:
+        if date==None:
             start = (datetime.today()+timedelta(-2)).strftime('%Y%m%d')
             start = f'{start}T2300'
 
