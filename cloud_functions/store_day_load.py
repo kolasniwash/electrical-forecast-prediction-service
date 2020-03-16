@@ -23,7 +23,7 @@ def store_day_load(request):
         return start, end, date
     
     def gcs_file_name(start, end):
-        return f'es-energy-demand-raw-{start}-{end}'
+        return f'es-energy-demand-{start}-{end}'
     
     def query_entsoe_load(start, end):
         
