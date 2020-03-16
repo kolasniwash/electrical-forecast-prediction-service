@@ -15,60 +15,17 @@ def get_access_token():
     
     return os.environ.get('ENTSOE_TOKEN')
 
-
-# def get_date_range(date=None, period=None):
-
-#     if date == None:
-#         date = datetime.today()+timedelta(1)
-
-#     if period==None:
-#         delta = timedelta(14)
-#     else:
-#         delta = timedelta(period)
-
-#     end = pd.Timestamp(date.strftime('%Y%m%d'), tz='UTC')
-#     start = pd.Timestamp((date - delta).strftime('%Y%m%d'), tz='UTC')
-
-#     return start, end
-
-
-# def get_entsoe_data(country='ES', date=None, period=None):
-
-
-#     start, end = get_date_range()
-
-#     client = EntsoePandasClient(api_key=get_access_token())
-
-#     data = client.query_load(country, start=start, end=end)
-
-#     return data
-
-
-# def load_data():
-
-#     df_load = get_entsoe_data()
-
-#     df_preds = make_predictions(df_load)
-
-#     return df_load, df_preds
-
-# def make_predictions(df, date=None, period=None):
-
-#     #move forward 24 hours. persistance model.
-#     df = df.shift(24)
-
-#     return df
-
-
 def request_graph_data():
     
-    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/return-load"
-    result = requests.post(url, json={"key": str(get_access_token())})
+    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/pull-all-data"
+    result = requests.post(url, json={"download": 'true'})
 
-    df_load = pd.read_json(result.json()['df_load'], typ='series', orient='index')
-    df_preds = pd.read_json(result.json()['df_preds'], typ='series', orient='index')
+    df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
+    df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
+    df_MA3 = pd.read_json(result.json()['df_MA3'], typ='series', orient='index')
+    df_MA3_hbh = pd.read_json(result.json()['df_MA3_hbh'], typ='series', orient='index')
 
-    return df_load, df_preds
+    return df_load, df_naive, df_MA3, df_MA3_hbh
 
 def return_figures():
     """Creates four plotly visualizations using the World Bank API
@@ -90,7 +47,7 @@ def return_figures():
     graph_one = list()
     graph_two = list()
 
-    df_one, df_two = request_graph_data()
+    df_one, df_two, df_three, df_four = request_graph_data()
 
     # filter and sort values for the visualization
     # filtering plots the countries in decreasing order by their values
@@ -119,9 +76,23 @@ def return_figures():
       x = df_two.index,
       y = df_two.values,
       mode = 'lines',
-      name='Persistance: Forecast'
+      name='Persistance: Naive'
       )
     )
+
+    graph_one.append(
+        go.Scatter(
+            x=df_three.index,
+            y=df_three.values,
+            mode='lines',
+            name='Persist 3 Day MA'))
+
+    graph_one.append(
+        go.Scatter(
+            x=df_four.index,
+            y=df_four.values,
+            mode='lines',
+            name='Persist Hourly 3 Day MA'))
 
 
     # append all charts
