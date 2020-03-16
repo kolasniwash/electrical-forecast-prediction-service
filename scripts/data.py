@@ -18,7 +18,7 @@ def get_access_token():
 def request_graph_data():
     
     url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/pull-all-data"
-    result = requests.post(url, json={"download": 'true'})
+    result = requests.post(url, json={"download": 'true', "load_period": 5, "persist_period": 3})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
     df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
