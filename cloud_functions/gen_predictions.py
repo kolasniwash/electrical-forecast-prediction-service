@@ -111,8 +111,7 @@ def keras_predict(request):
 
     if 'gen_keras' in params and params['gen_keras']:
 
-        #storage_client = storage.Client()
-        storage_client = get_client()
+        storage_client = storage.Client()
 
         time_pairs = get_time_dates(30)
         data_list = list()
