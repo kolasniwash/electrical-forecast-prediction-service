@@ -26,8 +26,6 @@ def keras_predict(request):
     FOLDER_UP = 'keras_forecasts_v1'
     BUCKET = 'ml-energy-dashboard-raw-data'
 
-    CACHE_PATH = '~/github-repos/energy-dashboard/cache/'
-
     def get_time_dates(period):
         end = datetime.today()
         start = datetime.today() + timedelta(-period)
@@ -45,14 +43,8 @@ def keras_predict(request):
 
         return time_pairs
 
-    def raw_data_date():
-        return (datetime.today() + timedelta(-1)).strftime('%Y%m%d')
-
     def gcs_save_name(name, date):
         return f'{name}-{date}'
-
-    def gcs_load_name(start, end):
-        return f'es-energy-demand-{start}-{end}'
 
     def get_gcs_data(client, bucket_name, folder_name, file_name):
         bucket = client.get_bucket(bucket_name)
@@ -66,39 +58,10 @@ def keras_predict(request):
         blob = bucket.blob(f'{folder_name}/{file_name}')
         blob.upload_from_string(data.to_json())
 
-    def get_data(client, time_pairs):
-        data_list = list()
-        for time_pair in time_pairs:
-            file_name = f'es-energy-demand-{time_pair[0]}-{time_pair[1]}'
-            data = get_gcs_data(client, BUCKET, FOLDER_DOWN, file_name)
-            print(type(data))
-            data = pd.read_json(data, typ='series', orient='records', keep_default_dates=False)
-            data_list.append(data)
-
-        data = reset_data_index(data_list)
-        return data
-
     def reset_data_index(data_list):
 
         data = pd.concat(data_list, axis=0)
         data.index = data.index.tz_localize('UTC').tz_convert('Europe/Madrid')
-
-        return data
-
-    def load_data(client):
-
-        period = 30  # days
-
-        today = datetime.today().strftime('%Y%m%d')
-        tmp_path = os.path.join(CACHE_PATH, f'loads-{today}.csv')
-
-        try:
-            data = pd.read_csv(tmp_path, index_col=[0], parse_dates=True)
-
-        except:
-            dates = get_time_dates(period)
-            data = get_data(client, dates)
-            data.to_csv(tmp_path)
 
         return data
 
@@ -109,10 +72,7 @@ def keras_predict(request):
         bucket = client.get_bucket(BUCKET)
         blob = bucket.blob(f'models/{file_name}')
         blob.download_to_filename(file_name)
-
-        #model = load_model(f'/tmp/{file_name}')
-
-        model = load_model(file_name)
+        model = load_model(f'/tmp/{file_name}')
 
         return model
 
@@ -147,7 +107,7 @@ def keras_predict(request):
         return df, scaler
 
 
-    params = request #.get_json()
+    params = request.get_json()
 
     if 'gen_keras' in params and params['gen_keras']:
 
@@ -163,13 +123,6 @@ def keras_predict(request):
             data_list.append(data)
 
         data = reset_data_index(data_list)
-
-
-
-
-        #load last 30 days of data from gcs
-        #data = load_data(storage_client)
-
 
         #preprocessing pipeline
         data = transform_hours(data)
