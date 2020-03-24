@@ -71,7 +71,7 @@ def comb_all_data(request):
             data = pd.read_json(data_json)
             data_list.append(data)
 
-        data = pd.concat(data_list, axis=0)
+        data = reset_data_index(data_list)
         return data
 
     def get_keras_forecast(client, dates):
@@ -83,12 +83,12 @@ def comb_all_data(request):
             data_list.append(data)
 
         #localizing keras data to UTC results in offset of +1 hour compared to other datasets.
-        #data = reset_data_index(data_list)
+        data = reset_data_index(data_list)
         return data
 
     payload = {"success": False}
 
-    params = request.get_json()
+    params = request #.get_json()
 
     if "download" in params and params['download']:
 
@@ -107,6 +107,11 @@ def comb_all_data(request):
         else:
             keras_period = params['keras_forecast']
 
+        # from google.oauth2 import service_account
+        # import os
+        #
+        # creds = service_account.Credentials.from_service_account_file(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+        # client = storage.Client(credentials=creds, project='ml-energy-dashboard')
         client = storage.Client()
 
         payload['df_loads'] = str(get_data(client, get_time_dates(load_period, pairs=True)).to_json())
