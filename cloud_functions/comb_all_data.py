@@ -107,12 +107,14 @@ def comb_all_data(request):
         else:
             keras_period = params['keras_forecast']
 
-        # from google.oauth2 import service_account
-        # import os
-        #
-        # creds = service_account.Credentials.from_service_account_file(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
-        # client = storage.Client(credentials=creds, project='ml-energy-dashboard')
-        client = storage.Client()
+        if 'test' in params and params['test']:
+            from google.oauth2 import service_account
+            import os
+
+            creds = service_account.Credentials.from_service_account_file(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+            client = storage.Client(credentials=creds, project='ml-energy-dashboard')
+        else:
+            client = storage.Client()
 
         payload['df_loads'] = str(get_data(client, get_time_dates(load_period, pairs=True)).to_json())
         persistance = get_persistence(client, get_time_dates(persist_period, pairs=False))
