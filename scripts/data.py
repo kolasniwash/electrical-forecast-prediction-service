@@ -24,8 +24,9 @@ def request_graph_data():
     df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
     df_MA3 = pd.read_json(result.json()['df_MA3'], typ='series', orient='index')
     df_MA3_hbh = pd.read_json(result.json()['df_MA3_hbh'], typ='series', orient='index')
+    df_keras_forecast = pd.read_json(result.json()['keras_forecast'], typ='series', orient='index')
 
-    return df_load, df_naive, df_MA3, df_MA3_hbh
+    return df_load, df_naive, df_MA3, df_MA3_hbh, df_keras_forecast
 
 def return_figures():
     """Creates four plotly visualizations using the World Bank API
@@ -47,7 +48,7 @@ def return_figures():
     graph_one = list()
     graph_two = list()
 
-    df_one, df_two, df_three, df_four = request_graph_data()
+    df_one, df_two, df_three, df_four, df_five = request_graph_data()
 
     # filter and sort values for the visualization
     # filtering plots the countries in decreasing order by their values
@@ -93,6 +94,15 @@ def return_figures():
             y=df_four.values,
             mode='lines',
             name='Persist Hourly 3 Day MA'))
+
+    graph_one.append(
+        go.Scatter(
+            x=df_five.index,
+            y=df_five.values,
+            mode='lines',
+            name='LSTM V1'
+        )
+    )
 
 
     # append all charts
