@@ -66,7 +66,7 @@ def return_figures():
       )
     )
 
-    layout_one = dict(title = 'ES Energy Demand', 
+    layout_one = dict(title = 'Ground Truth & Forecast Energy Demand: Last 7 Days',
         xaxis = dict(title = 'Time', autotick=True), 
         yaxis = dict(title = 'Load MWh', autotick=True))
 
