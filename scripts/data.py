@@ -28,7 +28,7 @@ def request_graph_data():
     return df_load, df_naive, df_MA3_hbh, df_keras_forecast
 
 def return_figures():
-    """Creates four plotly visualizations using the World Bank API
+    """Creates plotly visualizations using GCP endpoint
 
     # Example of the World Bank API endpoint:
     # arable land for the United States and Brazil from 1990 to 2015
