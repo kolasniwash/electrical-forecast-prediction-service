@@ -78,11 +78,12 @@ def comb_all_data(request):
         data_list = list()
         for date in dates:
             file_name = f'keras-forecast-v1--{date}'
-            data = get_gcs_data(client, BUCKET, FOLDER_DOWN, file_name)
-            data = pd.read_json(data, typ='series', orient='records', keep_default_dates=False)
+            data = get_gcs_data(client, BUCKET, FOLDER_KERAS, file_name)
+            data = pd.read_json(data)
             data_list.append(data)
 
-        data = reset_data_index(data_list)
+        #localizing keras data to UTC results in offset of +1 hour compared to other datasets.
+        #data = reset_data_index(data_list)
         return data
 
     payload = {"success": False}
@@ -113,7 +114,7 @@ def comb_all_data(request):
         payload['df_naive'] = str(persistance['naive'].to_json())
         payload['df_MA3'] = str(persistance['MA3-day'].to_json())
         payload['df_MA3_hbh'] = str(persistance['MA30day-hbh'].to_json())
-        payload['keras_forecast'] = str(get_keras_forecast(client, get_time_dates(keras_period, paris=False)).to_json())
+        payload['keras_forecast'] = str(get_keras_forecast(client, get_time_dates(keras_period, pairs=False)).to_json())
         payload['success'] = True
 
     return jsonify(payload)
