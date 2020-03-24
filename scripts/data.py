@@ -17,18 +17,18 @@ def get_access_token():
 
 def request_graph_data():
     
-    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/pull-all-data"
-    result = requests.post(url, json={"download": 'true'})
+    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/comb-all-data"
+    result = requests.post(url, json={"download": 'true', "load_period": 5, "persist_period": 3, "keras_forecast": 3})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
     df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
-    df_MA3 = pd.read_json(result.json()['df_MA3'], typ='series', orient='index')
     df_MA3_hbh = pd.read_json(result.json()['df_MA3_hbh'], typ='series', orient='index')
+    df_keras_forecast = pd.read_json(result.json()['keras_forecast'])['keras_loads']
 
-    return df_load, df_naive, df_MA3, df_MA3_hbh
+    return df_load, df_naive, df_MA3_hbh, df_keras_forecast
 
 def return_figures():
-    """Creates four plotly visualizations using the World Bank API
+    """Creates plotly visualizations using GCP endpoint
 
     # Example of the World Bank API endpoint:
     # arable land for the United States and Brazil from 1990 to 2015
@@ -45,9 +45,8 @@ def return_figures():
     # first chart plots arable land from 1990 to 2015 in top 10 economies 
     # as a line chart
     graph_one = list()
-    graph_two = list()
 
-    df_one, df_two, df_three, df_four = request_graph_data()
+    df_one, df_two, df_four, df_five = request_graph_data()
 
     # filter and sort values for the visualization
     # filtering plots the countries in decreasing order by their values
@@ -82,17 +81,17 @@ def return_figures():
 
     graph_one.append(
         go.Scatter(
-            x=df_three.index,
-            y=df_three.values,
-            mode='lines',
-            name='Persist 3 Day MA'))
-
-    graph_one.append(
-        go.Scatter(
             x=df_four.index,
             y=df_four.values,
             mode='lines',
             name='Persist Hourly 3 Day MA'))
+
+    graph_one.append(
+        go.Scatter(
+            x=df_five.index,
+            y=df_five.values,
+            mode='lines',
+            name='Neural Network: LSTM V1'))
 
 
     # append all charts
