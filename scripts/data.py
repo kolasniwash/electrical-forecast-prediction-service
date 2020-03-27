@@ -1,23 +1,12 @@
 import pandas as pd
-import numpy as np
 import plotly.graph_objs as go
-import plotly.colors
-from collections import OrderedDict
 import requests
-from entsoe import EntsoePandasClient
 import os
-from datetime import datetime, timedelta
 
-
-def get_access_token():
-
-    assert 'ENTSOE_TOKEN' in os.environ,'ENTSOE Access token not set in environment varibale.'
-    
-    return os.environ.get('ENTSOE_TOKEN')
 
 def request_graph_data():
     
-    url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/comb-all-data"
+    url = os.environ['GCF_DATA_URL']
     result = requests.post(url, json={"download": 'true', "load_period": 6, "persist_period": 7, "keras_forecast": 7})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
