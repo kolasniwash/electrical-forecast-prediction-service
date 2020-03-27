@@ -21,6 +21,7 @@ def request_graph_data():
     result = requests.post(url, json={"download": 'true', "load_period": 5, "persist_period": 3, "keras_forecast": 3})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
+    df_load = df_load.tz_localize('UTC').tz_convert('Europe/Madrid')
     df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
     df_MA3_hbh = pd.read_json(result.json()['df_MA3_hbh'], typ='series', orient='index')
     df_keras_forecast = pd.read_json(result.json()['keras_forecast'])['keras_loads']
