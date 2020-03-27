@@ -21,6 +21,7 @@ def request_graph_data():
     result = requests.post(url, json={"download": 'true', "load_period": 5, "persist_period": 3, "keras_forecast": 3})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
+    df_load = df_load.tz_localize('UTC').tz_convert('Europe/Madrid')
     df_naive = pd.read_json(result.json()['df_naive'], typ='series', orient='index')
     df_MA3_hbh = pd.read_json(result.json()['df_MA3_hbh'], typ='series', orient='index')
     df_keras_forecast = pd.read_json(result.json()['keras_forecast'])['keras_loads']
@@ -66,16 +67,17 @@ def return_figures():
       )
     )
 
-    layout_one = dict(title = 'ES Energy Demand', 
+    layout_one = dict(title = 'Ground Truth & Forecast Energy Demand: Last 7 Days',
         xaxis = dict(title = 'Time', autotick=True), 
         yaxis = dict(title = 'Load MWh', autotick=True))
 
     graph_one.append( 
     go.Scatter(
-      x = df_two.index,
-      y = df_two.values,
-      mode = 'lines',
-      name='Persistance: Naive'
+        x = df_two.index,
+        y = df_two.values,
+        mode = 'lines',
+        opacity = 0.3,
+        name='Persistance: Naive'
       )
     )
 
@@ -84,14 +86,16 @@ def return_figures():
             x=df_four.index,
             y=df_four.values,
             mode='lines',
-            name='Persist Hourly 3 Day MA'))
+            opacity=0.3,
+            name='Moving Average: Last 3 Days'))
 
     graph_one.append(
         go.Scatter(
             x=df_five.index,
             y=df_five.values,
             mode='lines',
-            name='Neural Network: LSTM V1'))
+            opacity=0.3,
+            name='Neural Network: LSTM Univariate'))
 
 
     # append all charts

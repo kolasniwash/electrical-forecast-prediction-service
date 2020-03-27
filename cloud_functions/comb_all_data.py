@@ -116,7 +116,7 @@ def comb_all_data(request):
         else:
             client = storage.Client()
 
-        payload['df_loads'] = str(get_data(client, get_time_dates(load_period, pairs=True)).to_json())
+        payload['df_loads'] = str(get_data(client, get_time_dates(load_period, pairs=True))).to_json()
         persistance = get_persistence(client, get_time_dates(persist_period, pairs=False))
         payload['df_naive'] = str(persistance['naive'].to_json())
         payload['df_MA3'] = str(persistance['MA3-day'].to_json())
