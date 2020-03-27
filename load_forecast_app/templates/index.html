@@ -79,14 +79,14 @@
 
 
 					<h2>Description:</h2>
-					<p>The chart shows three models deployed as part of this project. The two persistence models are baseline models. The third is a simple LSTM neural network.</p>
+					<p>The graph shows three forecasting models that each day predict the hourly energy demand for the coming 24 hours. Models were deployed as part of a project to learn how to put into production machine learning models. Two models are baseline models while the third is a simple LSTM neural network.</p>
 
 					<h2>Models:</h2>
 					<p>
 						<oi>
 							<li>Persistence: generates a forecast using the actual demand from yesterday as today's forecast.</li>
 							<li>Persist hourly 3 Day MA: is the moving average of each hour from the last three days. The 24 moving averages are stacked together to form a single 24 hour ahead prediction.</li>
-							<li>LSTM Neural Network: a simple 10 lag feature LSTM architecture. Lags are the previous week of demand, plus -14, -21, and -27 days.</li>
+							<li>LSTM Neural Network: a simple univariate model (i.e. only uses past energy demand as predictors) with 23 lag features and an LSTM architecture. Lags are the previous 21 days of demand, plus every additional 7 days up to a 60 day look-back.</li>
 						</oi>
 					</p>
 					<h3>Architecture:</h3>
