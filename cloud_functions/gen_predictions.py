@@ -1,15 +1,6 @@
-"""
-Google Cloud Function
-
-Triggered by a google cloud cron daily at 0130
-
-Accesses the raw data in GCS and loads a keras model to make predictions.
-
-"""
-
 def keras_predict(request):
     """
-    1. Function to load the data from the last 30 days
+    1. Function to load the data from the last 60 days
     2. Funciton to preprocess and prepare the data for infrence
     3. Function to make predictions
 
@@ -19,7 +10,6 @@ def keras_predict(request):
     from google.cloud import storage
     from sklearn.preprocessing import MinMaxScaler
     import os
-    from cloud_utils.utils import get_client
     from datetime import datetime, timedelta
 
     FOLDER_DOWN = 'raw-days'
@@ -58,6 +48,18 @@ def keras_predict(request):
         blob = bucket.blob(f'{folder_name}/{file_name}')
         blob.upload_from_string(data.to_json())
 
+    def get_data(client, time_pairs):
+        data_list = list()
+        for time_pair in time_pairs:
+            file_name = f'es-energy-demand-{time_pair[0]}-{time_pair[1]}'
+            data = get_gcs_data(client, BUCKET, FOLDER_DOWN, file_name)
+            print(type(data))
+            data = pd.read_json(data, typ='series', orient='records', keep_default_dates=False)
+            data_list.append(data)
+
+        data = reset_data_index(data_list)
+        return data
+
     def reset_data_index(data_list):
 
         data = pd.concat(data_list, axis=0)
@@ -67,11 +69,12 @@ def keras_predict(request):
 
     def load_keras_model(client):
 
-        file_name = 'v1_univar_20200321.h5'
+        file_name = 'v2_univar_20200327.h5'
 
         bucket = client.get_bucket(BUCKET)
         blob = bucket.blob(f'models/{file_name}')
-        blob.download_to_filename(file_name)
+        blob.download_to_filename(f'/tmp/{file_name}')
+
         model = load_model(f'/tmp/{file_name}')
 
         return model
@@ -113,7 +116,7 @@ def keras_predict(request):
 
         storage_client = storage.Client()
 
-        time_pairs = get_time_dates(30)
+        time_pairs = get_time_dates(60)
         data_list = list()
 
         for time_pair in time_pairs:
@@ -131,9 +134,9 @@ def keras_predict(request):
         #load model and make predictions
         model = load_keras_model(storage_client)
 
-        lags = [x for x in range(7)] + [x for x in range(14, 29, 7)]
+        lags = [x for x in range(21)] + [x for x in range(28, 60, 7)]
 
-        data = data.iloc[lags].values.reshape((1, 10, 24))
+        data = data.iloc[lags].values.reshape((1, len(lags), 24))
         print(data.shape)
 
         predictions = model.predict(data)
@@ -148,4 +151,3 @@ def keras_predict(request):
         keras_file_name = gcs_save_name('keras-forecast-v1-', datetime.today().strftime('%Y%m%d'))
         # create persistance - simple persistance today's values >> tomorrow forecast
         upload_data_to_gcs(storage_client, preds, BUCKET, FOLDER_UP, keras_file_name)
-
