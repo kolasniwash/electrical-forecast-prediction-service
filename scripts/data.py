@@ -18,7 +18,7 @@ def get_access_token():
 def request_graph_data():
     
     url="https://us-central1-ml-energy-dashboard.cloudfunctions.net/comb-all-data"
-    result = requests.post(url, json={"download": 'true', "load_period": 5, "persist_period": 3, "keras_forecast": 3})
+    result = requests.post(url, json={"download": 'true', "load_period": 6, "persist_period": 7, "keras_forecast": 7})
 
     df_load = pd.read_json(result.json()['df_loads'], typ='series', orient='index')
     df_load = df_load.tz_localize('UTC').tz_convert('Europe/Madrid')
