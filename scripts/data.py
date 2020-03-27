@@ -72,10 +72,11 @@ def return_figures():
 
     graph_one.append( 
     go.Scatter(
-      x = df_two.index,
-      y = df_two.values,
-      mode = 'lines',
-      name='Persistance: Naive'
+        x = df_two.index,
+        y = df_two.values,
+        mode = 'lines',
+        opacity = 0.3,
+        name='Persistance: Naive'
       )
     )
 
@@ -84,14 +85,16 @@ def return_figures():
             x=df_four.index,
             y=df_four.values,
             mode='lines',
-            name='Persist Hourly 3 Day MA'))
+            opacity=0.3,
+            name='Moving Average: Last 3 Days'))
 
     graph_one.append(
         go.Scatter(
             x=df_five.index,
             y=df_five.values,
             mode='lines',
-            name='Neural Network: LSTM V1'))
+            opacity=0.3,
+            name='Neural Network: LSTM Univariate'))
 
 
     # append all charts
