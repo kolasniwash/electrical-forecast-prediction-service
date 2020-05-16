@@ -1,20 +1,17 @@
 # Energy Dashboard Webapp
-[http://energy-dashbaord.herokuapp.com/](http://energy-dashbaord.herokuapp.com/)
 
 **Project Status [In Progress]**
 
 ## Dashboard
-This is an end-to-end machine learning pipeline that predicts energy demand for the next 24 hour period. The repo contains code to deploy a data pipeline with GCP for the automatic ingestion, processing, inference with an LSTM, and visualization. 
+This is an end-to-end machine learning pipeline that predicts energy demand for the next 24 hour period. The repo contains code to train, and  deploy a machine learning prediction service that ingests, processes, and makes inference with an LSTM.
 
 ## Background
 Day ahead energy forecasts are predictions of the expected energy consumption or generation over the next 24 hours. They guide energy traders, grid operators, and generation stations as an integral part of the electrical grid infrastructure. Electrical markets rely on stability and the balance between demand and generation. Part of this balance is achieved by being able to plan resources. This means know how much energy to produce, and when to produce it. Forecasting forms an integral part of predicting how much electrical capacity to have ready to produce.
 
-## PROBLEM STATEMENT
-Design, implement, and engineer a solution to make daily predictions of the energy consumption in Spain.
+## Project Resources
 
-### Sub-Questions
-- What model architecture and configuration improves prediction performance over the baseline?
-- How can the model make predictions on new data and display the delivered interece data to end-users?
+<img src="img/ml-service-schema.png" align="middle">
+
 
 ### DATASETS AND INPUTS
 This project will narrow its focus to predicting electrical consumption demand in Spain. A dataset for this is available on kaggle. Additional data is available from the ENTSO-E transparency platform and may be downloaded directly or accessed via API.
@@ -28,11 +25,11 @@ The objectives of this project are twofold:
 - Implement an LSTM neural network that predicts energy consumption 24 hours in advance.
 
 ## Learning Objectives
-The focus of this project is setting up the infrastructure and data pipeline to make inference. The learning goals are: 
+The focus of this project is setting up the infrastructure and data pipeline to make inference. The learning goals are:
 - Setup an end-to-end data pipeline with Google Cloud Platform, Airflows, and Cloud Functions
 - Deploy a Tensorflow LSTM model for inference.
 - Configure a flask web app to display the daily predictions.
-- Work within a continuous deployment environment 
+- Work within a continuous deployment environment
 
 ## Methods Used
 - Data Engineering
